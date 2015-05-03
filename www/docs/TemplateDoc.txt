@@ -1,0 +1,38 @@
+
+Install
+	npm install express
+	npm install ws
+
+To Run:
+	1) Start the server:
+		> node sonicChatServer.js [port#]
+	2) point a browser to
+		http://[server IP]:[port#]/leadClient.html
+	3) from a different browser or device, navigate to 
+		http://[server IP]:[port#]/index.html
+		or simply
+		http://[server IP]:[port#]
+
+//-----------------------------------------------
+MODULES
+This project uses the module loader require.js, loaded locally from www/jslibs/require.js
+
+
+
+
+The comm ojbect manages message sending.
+
+CLIENTS register for the incoming messages, and thereafter recieve callback when they are received:
+	comm.registerCallback(message_name, cb_function);
+and sends messages thus:
+	comm.sendJSONmsg(message_name, data_array);
+
+Internally, the comm module creates a message object:
+{
+	"n": //name of message, e.g. "note on",
+	"d": //an array of data that the receiver knows how to parse based on the message name,
+	"s": //an id uniquiely identifying the message sender 
+}
+JSONStrinifies it, and sends it to the server.
+
+
