@@ -254,9 +254,6 @@ require(
 
 		var lastDrawTime=0;
 		var t_sinceOrigin;
-		var nowishP = function(t){
-			if ((t > lastDrawTime) && (t <= t_sinceOrigin)) return true;
-		}
 
 
 		theCanvas.addEventListener("mousedown", onMouseDown, false);

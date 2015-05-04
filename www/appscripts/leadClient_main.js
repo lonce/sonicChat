@@ -15,26 +15,19 @@ require.config({
 	}
 });
 require(
-	["mods/comm", "mods/utils", "mods/touch2Mouse",  "soundbank", "agentPlayer", "config", "lightswarmConfig"],
+	["mods/comm", "mods/utils", "mods/touch2Mouse",  "soundbank", "agentPlayer", "config", "leadClientConfig"],
 
-	function (comm, utils, touch2Mouse,  soundbank, agentPlayer, config, lightswarmConfig) {
+	function (comm, utils, touch2Mouse,  soundbank, agentPlayer, config, leadClientConfig) {
 
 		var mouse_down=false;
-		var m_agent;
+		var m_agent = agentPlayer();
 
-		lightswarmConfig.on("submit", function(){
-			if (lightswarmConfig.player === "agent"){
-				console.log("you will play with (or as) an agent");
-				m_agent=agentPlayer();
-			} else {
-				console.log("you are playing as a human");
-			}
-
+		leadClientConfig.on("submit", function(){
 			// unsubscribe to previous room, join new room
 			if (myRoom != undefined) comm.sendJSONmsg("unsubscribe", [myRoom]);
-    		myRoom  = lightswarmConfig.room;
+    		myRoom  = leadClientConfig.room;
 			if (myRoom != undefined) {
-				console.log("lightswarmConfig.report: joing a room named " + myRoom); 
+				console.log("leadClientConfig.report: joing a room named " + myRoom); 
 				comm.sendJSONmsg("subscribe", [myRoom]);
 				// Tell everybody in the room to restart their timers.
 				comm.sendJSONmsg("startTime", []);
@@ -66,8 +59,6 @@ require(
 		}
 //------------------------------------------------------------------------
 
-
-
         var myrequestAnimationFrame = utils.getRequestAnimationFrameFunc();
 
 		var timeOrigin=Date.now();
@@ -75,8 +66,7 @@ require(
 		var serverTime=0;
 		var myID=0;
 		var myRoom=undefined;
-		var displayElements = [];  // list of all items to be displayed on the score
-		var colorIDMap=[]; // indexed by client ID
+
 
 		var g_selectModeP = false;
 		var m_selectedElement = undefined;
@@ -95,8 +85,6 @@ require(
 
 
 
-
-
 		//---------------------------------------------------------------------------
 		// init is called just after a client navigates to the web page
 		// 	data[0] is the client number we are assigned by the server.
@@ -104,10 +92,9 @@ require(
 			//pong.call(this, data[1]);
 			myID=data[0];
 			console.log("Server acknowledged, assigned me this.id = " + myID);
-			colorIDMap[myID]="#00FF00";
+
 
 		});
-		//---------------------------------------------------------------------------
 
 		//---------------------------------------------------------------------------
 		comm.registerCallback('metroPulse', function(data, src) {
@@ -123,24 +110,16 @@ require(
 			timeOrigin=Date.now();
 			serverTimeOrigin=data[0];
 			m_lastDisplayTick=0;
-			displayElements=[];		
 		});
 		//---------------------------------------------------------------------------
-		// Just make a color for displaying future events from the client with the src ID
 		comm.registerCallback('newmember', function(data, src) {
 			console.log("new member : " + src);
-			colorIDMap[src]=utils.getRandomColor1(100,255,0,120,100,255);
 		});
 		//---------------------------------------------------------------------------
 		// src is meaningless since it is this client
 		comm.registerCallback('roommembers', function(data, src) {
 			if (data.length > 1) 
 					console.log("there are other members in this room!");
-			for(var i=0; i<data.length;i++){
-				if (data[i] != myID){
-					colorIDMap[data[i]]=utils.getRandomColor1(100,255,0,120,100,255);
-				}
-			}
 		});
 
 
@@ -172,9 +151,6 @@ require(
 
 		var lastDrawTime=0;
 		var t_sinceOrigin;
-		var nowishP = function(t){
-			if ((t > lastDrawTime) && (t <= t_sinceOrigin)) return true;
-		}
 
 
 		theCanvas.addEventListener("mousedown", onMouseDown, false);
@@ -228,11 +204,6 @@ require(
 			lastDrawTime=elapsedtime;
 
 		}
-
-
-
-
-
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
